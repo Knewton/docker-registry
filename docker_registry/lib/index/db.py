@@ -4,6 +4,8 @@
 """
 
 import logging
+import random
+import time
 
 from ... import storage
 from ... import toolkit
@@ -50,7 +52,7 @@ class Repository (Base):
 
 def retry(f):
     def _retry(self, *args, **kwargs):
-        retry_times = 1
+        retry_times = 3
         i = 0
         while True:
             try:
@@ -83,7 +85,14 @@ class SQLAlchemyIndex (Index):
         self._engine = sqlalchemy.create_engine(database)
         self._session = sqlalchemy.orm.sessionmaker(bind=self._engine)
         self.version = 1
-        self._setup_database()
+        try:
+            self._setup_database()
+        except sqlalchemy.exc.InvalidRequestError as e:
+            logger.warn("Invalid request: %s", e)
+            delay = random.randint(5, 15)
+            logger.warn("Waiting %d seconds before retrying...", delay)
+            time.sleep(delay)
+            self._setup_database()
         super(SQLAlchemyIndex, self).__init__()
 
     def reconnect_db(self):
