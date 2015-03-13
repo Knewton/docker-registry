@@ -17,6 +17,7 @@ RUN apt-get update \
 # Install deps for backports.lzma (python2 requires it)
         python-dev \
         python-mysqldb \
+        python-psycopg2 \
         python-rsa \
         libssl-dev \
         liblzma-dev \
